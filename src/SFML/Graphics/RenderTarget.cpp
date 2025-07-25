@@ -32,6 +32,7 @@
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/VertexBuffer.hpp>
+#include <SFML/Graphics/ColorfulVertexArray.hpp>
 
 #include <SFML/Window/Context.hpp>
 
@@ -412,7 +413,48 @@ void RenderTarget::draw(const Vertex* vertices, std::size_t vertexCount, Primiti
         m_cache.texCoordsArrayEnabled = enableTexCoordsArray;
     }
 }
+////////////////////////////////////////////////////////////
+void RenderTarget::draw(const ColorfulVertex* vertices, std::size_t vertexCount, PrimitiveType type, const RenderStates& states)
+{
+    // Nothing to draw?
+    if (!vertices || (vertexCount == 0))
+        return;
 
+    if (RenderTargetImpl::isActive(m_id) || setActive(true))
+    {
+        // Check if the vertex count is low enough so that we can pre-transform them
+        const bool useVertexCache = false;  // never needed
+
+        setupDraw(useVertexCache, states);
+
+        glCheck(glEnableClientState(GL_TEXTURE_COORD_ARRAY));   // Always needed
+        const auto* data = reinterpret_cast<const std::byte*>(vertices);
+
+        const size_t SIZE = sizeof(ColorfulVertex);
+        glCheck(glVertexPointer(2, GL_FLOAT, SIZE, data + 0));
+        glCheck(glColorPointer(4, GL_UNSIGNED_BYTE, SIZE, data + 8));
+        glCheck(glTexCoordPointer(2, GL_FLOAT, SIZE, data + 12));
+        
+        // Account for additional colors in custom vertex
+        glCheck(glEnableVertexAttribArray(4));
+        glCheck(glEnableVertexAttribArray(5));
+
+        glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, 0, SIZE, data + 20);
+        glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, 0, SIZE, data + 24);
+
+        drawPrimitives(type, 0, vertexCount);
+
+        glCheck(glDisableVertexAttribArray(4));
+        glCheck(glDisableVertexAttribArray(5));
+        glCheck(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
+
+        cleanupDraw(states);
+
+        // Update the cache
+        m_cache.useVertexCache        = useVertexCache;
+        m_cache.texCoordsArrayEnabled = false;
+    }
+}
 
 ////////////////////////////////////////////////////////////
 void RenderTarget::draw(const VertexBuffer& vertexBuffer, const RenderStates& states)

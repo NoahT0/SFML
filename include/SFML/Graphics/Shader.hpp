@@ -844,6 +844,15 @@ public:
     ////////////////////////////////////////////////////////////
     [[nodiscard]] static bool isGeometryAvailable();
 
+    ////////////////////////////////////////////////////////////
+    /// \brief Added for custom vertices
+    ///
+    /// Allows for custom attributes to be bound before linking shader
+    /// Probably a restriction created by using glsl 120
+    ///
+    ////////////////////////////////////////////////////////////
+    void bindAttributeLocation(const std::string& name, int index); // modification
+
 private:
     ////////////////////////////////////////////////////////////
     /// \brief Compile the shader(s) and create the program
@@ -903,6 +912,7 @@ private:
     int          m_currentTexture{-1}; //!< Location of the current texture in the shader
     TextureTable m_textures;           //!< Texture variables in the shader, mapped to their location
     UniformTable m_uniforms;           //!< Parameters location cache
+    std::vector<std::pair<std::string, int>> m_customAttribBindings;   // Added for custom vertices
 };
 
 } // namespace sf

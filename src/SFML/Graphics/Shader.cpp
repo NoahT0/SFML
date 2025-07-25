@@ -912,6 +912,12 @@ bool Shader::compile(std::string_view vertexShaderCode, std::string_view geometr
         if (!createAndAttachShader(GLEXT_GL_FRAGMENT_SHADER, "fragment", fragmentShaderCode))
             return false;
 
+    // Add vertex attributes
+    for (const auto& [name, index] : m_customAttribBindings)
+    {
+        glBindAttribLocation(castFromGlHandle(shaderProgram), index, name.c_str());
+    }
+
     // Link the program
     glCheck(GLEXT_glLinkProgram(shaderProgram));
 
@@ -938,6 +944,7 @@ bool Shader::compile(std::string_view vertexShaderCode, std::string_view geometr
     m_currentTexture = -1;
     m_textures.clear();
     m_uniforms.clear();
+    m_customAttribBindings.clear();
 
     m_shaderProgram = castFromGlHandle(shaderProgram);
 
@@ -985,6 +992,11 @@ int Shader::getUniformLocation(const std::string& name)
         err() << "Uniform " << std::quoted(name) << " not found in shader" << std::endl;
 
     return location;
+}
+
+void Shader::bindAttributeLocation(const std::string& name, int index)
+{
+    m_customAttribBindings.emplace_back(name, index);
 }
 
 } // namespace sf

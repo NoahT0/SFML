@@ -320,7 +320,19 @@ public:
               std::size_t         vertexCount,
               PrimitiveType       type,
               const RenderStates& states = RenderStates::Default);
-
+    ////////////////////////////////////////////////////////////
+    /// \brief Draw primitives defined by an array of custom vertices(contains more colors)
+    ///
+    /// \param vertices    Pointer to the custom vertices
+    /// \param vertexCount Number of vertices in the array
+    /// \param type        Type of primitives to draw
+    /// \param states      Render states to use for drawing
+    ///
+    ////////////////////////////////////////////////////////////
+    void draw(const ColorfulVertex*       vertices,
+              std::size_t         vertexCount,
+              PrimitiveType       type,
+              const RenderStates& states = RenderStates::Default);
     ////////////////////////////////////////////////////////////
     /// \brief Draw primitives defined by a vertex buffer
     ///
