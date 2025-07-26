@@ -38,6 +38,7 @@
 #include <SFML/Graphics/StencilMode.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/View.hpp>
+#include <SFML/Graphics/ColorfulVertexArray.hpp>
 
 #include <SFML/System/Vector2.hpp>
 
