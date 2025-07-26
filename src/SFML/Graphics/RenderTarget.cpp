@@ -439,8 +439,8 @@ void RenderTarget::draw(const ColorfulVertex* vertices, std::size_t vertexCount,
         glCheck(glEnableVertexAttribArray(4));
         glCheck(glEnableVertexAttribArray(5));
 
-        glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, 0, SIZE, data + 20);
-        glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, 0, SIZE, data + 24);
+        glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, SIZE, data + 20);
+        glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, SIZE, data + 24);
 
         drawPrimitives(type, 0, vertexCount);
 
