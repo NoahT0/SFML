@@ -335,6 +335,20 @@ public:
               PrimitiveType       type,
               const RenderStates& states = RenderStates::Default);
     ////////////////////////////////////////////////////////////
+    /// \brief Draw custom vertex array indexed method
+    ///
+    /// \param vertices    Pointer to the custom vertices
+    /// \param vertexCount Number of vertices in the array
+    /// \param indices     Pointer to indicies array
+    /// \param indexCount  Number of indicies in array
+    /// \param type        Type of primitives to draw
+    /// \param states      Render states to use for drawing
+    ///
+    ////////////////////////////////////////////////////////////
+   void draw(const ColorfulVertex* vertices, std::size_t vertexCount,
+                        const unsigned int* indices, std::size_t indexCount,
+                        PrimitiveType type, const RenderStates& states);
+    ////////////////////////////////////////////////////////////
     /// \brief Draw primitives defined by a vertex buffer
     ///
     /// \param vertexBuffer Vertex buffer
@@ -545,6 +559,16 @@ private:
     ///
     ////////////////////////////////////////////////////////////
     void drawPrimitives(PrimitiveType type, std::size_t firstVertex, std::size_t vertexCount);
+    
+    ////////////////////////////////////////////////////////////
+    /// \brief Draw the primitives(index based)
+    ///
+    /// \param type        Type of primitives to draw
+    /// \param indices     Pointer to indices
+    /// \param indexCount  Number of indicies to use when drawing
+    ///
+    ////////////////////////////////////////////////////////////
+    void drawPrimitivesIndicies(PrimitiveType type, const unsigned int* indices, std::size_t indexCount);
 
     ////////////////////////////////////////////////////////////
     /// \brief Clean up environment after drawing

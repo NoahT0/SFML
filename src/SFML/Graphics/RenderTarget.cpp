@@ -455,7 +455,44 @@ void RenderTarget::draw(const ColorfulVertex* vertices, std::size_t vertexCount,
         m_cache.texCoordsArrayEnabled = false;
     }
 }
+////////////////////////////////////////////////////////////
+void RenderTarget::draw(const ColorfulVertex* vertices, std::size_t vertexCount, const unsigned int* indices, std::size_t indexCount, PrimitiveType type, const RenderStates& states)
+{
+    // Nothing to draw?
+    if (!vertices || (vertexCount == 0) || (indices && indexCount == 0))
+        return;
 
+    if (RenderTargetImpl::isActive(m_id) || setActive(true))
+    {
+        const bool useVertexCache = false;
+
+        setupDraw(useVertexCache, states);
+
+        glCheck(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
+        const auto* data = reinterpret_cast<const std::byte*>(vertices);
+
+        const size_t SIZE = sizeof(ColorfulVertex);
+        glCheck(glVertexPointer(2, GL_FLOAT, SIZE, data + 0));
+        glCheck(glColorPointer(4, GL_UNSIGNED_BYTE, SIZE, data + 8));
+        glCheck(glTexCoordPointer(2, GL_FLOAT, SIZE, data + 12));
+
+        glCheck(glEnableVertexAttribArray(4));
+        glCheck(glEnableVertexAttribArray(5));
+        glCheck(glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, SIZE, data + 20));
+        glCheck(glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, SIZE, data + 24));
+
+        drawPrimitivesIndicies(type, indices, indexCount);
+
+        glCheck(glDisableVertexAttribArray(4));
+        glCheck(glDisableVertexAttribArray(5));
+        glCheck(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
+
+        cleanupDraw(states);
+
+        m_cache.useVertexCache         = useVertexCache;
+        m_cache.texCoordsArrayEnabled = false;
+    }
+}
 ////////////////////////////////////////////////////////////
 void RenderTarget::draw(const VertexBuffer& vertexBuffer, const RenderStates& states)
 {
@@ -940,6 +977,17 @@ void RenderTarget::drawPrimitives(PrimitiveType type, std::size_t firstVertex, s
     glCheck(glDrawArrays(mode, static_cast<GLint>(firstVertex), static_cast<GLsizei>(vertexCount)));
 }
 
+////////////////////////////////////////////////////////////
+void RenderTarget::drawPrimitivesIndicies(PrimitiveType type, const unsigned int* indices, std::size_t indexCount)
+{
+    // Find the OpenGL primitive type
+    static constexpr priv::EnumArray<PrimitiveType, GLenum, 6> modes =
+        {GL_POINTS, GL_LINES, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN};
+    const GLenum mode = modes[type];
+
+    // Draw the primitives
+    glCheck(glDrawElements(mode, static_cast<GLsizei>(indexCount), GL_UNSIGNED_INT, indices));
+}
 
 ////////////////////////////////////////////////////////////
 void RenderTarget::cleanupDraw(const RenderStates& states)
